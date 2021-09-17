@@ -1,0 +1,52 @@
+WORKER_COUNT = 4
+DEFAULT_RUNNING_WORKERS = 2
+NO_MASTER = false
+# MASTER_PARTICIPATES = false
+
+
+def autostart?(index)
+  index < DEFAULT_RUNNING_WORKERS unless index.nil?
+end
+
+def define_vm(config, vm_name, is_primary, vm_index=nil)
+  vm_full_name = "#{vm_name}#{vm_index}"
+
+  #puts "#{vm_full_name} started as primary: #{is_primary}, autostart: #{is_primary || autostart?(vm_index)}"
+
+  config.vm.define vm_full_name, primary: is_primary, autostart: is_primary || autostart?(vm_index) do |node|
+    node.vm.box = "{{.BoxName}}"
+    node.vm.box_url = "file://package.box"
+    node.vm.hostname = vm_full_name
+
+    node.vm.network "private_network", type: "dhcp"
+
+    {{ if ne .SyncedFolder "" -}}
+      node.vm.synced_folder "{{.SyncedFolder}}", "/vagrant"
+    {{- else -}}
+      node.vm.synced_folder ".", "/vagrant"
+    {{- end}}
+
+    if vm_name == "master"
+      node.vm.network "forwarded_port", guest: "9000", host: "9000"
+      node.vm.provision "file", source: "../stack", destination: "~/stack"
+      node.vm.provision "shell", path: "../script/init-swarm.sh"
+    else
+      node.vm.provision "shell", path: "../script/join-swarm.sh"
+    end
+  end
+end
+
+
+Vagrant.configure("2") do |config|
+  config.vm.define "source", autostart: false do |source|
+    source.vm.box = "{{.SourceBox}}"
+    config.ssh.insert_key = {{.InsertKey}}
+  end
+
+  config.ssh.insert_key = {{.InsertKey}}
+
+  define_vm(config, "master", true) unless NO_MASTER
+
+  WORKER_COUNT.times { |i| define_vm(config, "worker", false, i) }
+end
+
