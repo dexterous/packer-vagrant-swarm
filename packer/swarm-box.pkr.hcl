@@ -14,7 +14,7 @@ build {
   sources = ["source.vagrant.fedora"]
 
   provisioner "shell" {
-    script          = "./script/install-docker-fedora.sh"
+    script          = "./script/install-docker.sh"
     execute_command = "echo 'vagrant' | sudo -S sh -c '{{ .Vars }} {{ .Path }}'"
   }
 }

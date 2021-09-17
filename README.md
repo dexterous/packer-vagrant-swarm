@@ -26,13 +26,13 @@ vagrant.fedora: output will be in this color.
 ==> vagrant.fedora: Using SSH communicator to connect: 127.0.0.1
 ==> vagrant.fedora: Waiting for SSH to become available...
 ==> vagrant.fedora: Connected to SSH!
-==> vagrant.fedora: Provisioning with shell script: ./script/install-docker-fedora.sh
+==> vagrant.fedora: Provisioning with shell script: ./script/install-docker.sh
 ...
 ```
 
 This will pull down the `generic/fedoraXX` box and perform the following modifications to it:
 
-(Refer [script/install-docker-fedora.sh](script/install-docker-fedora.sh) for specifc commands.)
+(Refer [script/install-docker.sh](script/install-docker.sh) for specifc commands.)
 
 * Remove any legacy `docker` packges
 * Install `docker-ce` from [official Docker YUM repo](https://download.docker.com/linux/fedora/docker-ce.repo)
